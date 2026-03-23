@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Árvores Frutíferas do Campus</title>
+
+<!-- Leaflet (mapa) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    margin: 0;
+}
+
+header {
+    background: linear-gradient(90deg, #2e7d32, #66bb6a);
+    color: white;
+    text-align: center;
+    padding: 25px;
+}
+
+input {
+    width: 80%;
+    padding: 12px;
+    margin: 20px auto;
+    display: block;
+    border-radius: 8px;
+    border: none;
+}
+
+#map {
+    height: 300px;
+    margin: 20px;
+    border-radius: 10px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    background: white;
+    margin: 15px;
+    padding: 18px;
+    width: 260px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+}
+
+.detalhe {
+    display: none;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🌳 Árvores Frutíferas do Campus</h1>
+<p>Mapa interativo + catálogo</p>
+</header>
+
+<input type="text" id="search" placeholder="Pesquisar..." onkeyup="filtrar()">
+
+<div id="map"></div>
+
+<div class="container" id="lista"></div>
+
+<script>
+
+// 🌳 DADOS (todas as árvores)
+const arvores = [
+{nome:"Goiabeira", cientifico:"Psidium guajava", desc:"Goiaba suculenta", lat:-20.802313, lon:-41.153845},
+{nome:"Goiabeira", cientifico:"Psidium guajava", desc:"Goiaba suculenta", lat:-20.802401, lon:-41.153891},
+{nome:"Limoeiro", cientifico:"Citrus × latifolia", desc:"Azedinho", lat:-20.802461, lon:-41.153922},
+{nome:"Limoeiro", cientifico:"Citrus × latifolia", desc:"Muito azedinho", lat:-20.802579, lon:-41.153986},
+{nome:"Limoeiro", cientifico:"Citrus × latifolia", desc:"Azedinho", lat:-20.802632, lon:-41.154022},
+{nome:"Mangueira", cientifico:"Mangifera indica", desc:"Manga doce", lat:-20.802610, lon:-41.153946},
+{nome:"Aceroleira", cientifico:"Malpighia emarginata", desc:"Muito azeda 😆", lat:-20.802870, lon:-41.154156},
+{nome:"Bananeira", cientifico:"Musa × paradisiaca", desc:"Várias bananas", lat:-20.802938, lon:-41.154016},
+{nome:"Bananeira", cientifico:"Musa × paradisiaca", desc:"Em crescimento", lat:-20.803682, lon:-41.154721},
+{nome:"Jamboeiro", cientifico:"Syzygium jambos", desc:"Árvore amazônica", lat:-20.802800, lon:-41.154050},
+{nome:"Coqueiro", cientifico:"Cocos nucifera", desc:"Água de coco", lat:-20.803641, lon:-41.154470},
+{nome:"Coqueiro", cientifico:"Cocos nucifera", desc:"Suculento", lat:-20.803681, lon:-41.154697},
+{nome:"Mamoeiro", cientifico:"Carica papaya", desc:"Docinho", lat:-20.803629, lon:-41.155026},
+{nome:"Laranjeira", cientifico:"Citrus aurantifolia", desc:"Dá água na boca", lat:-20.803634, lon:-41.155124},
+{nome:"Curupaçu", cientifico:"Theobroma grandiflorum", desc:"Parecido com cacau", lat:-20.803091, lon:-41.155495}
+];
+
+// 📌 CRIAR MAPA
+const map = L.map('map').setView([-20.803, -41.154], 17);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// 🌳 CRIAR CARDS + MARCADORES
+const lista = document.getElementById("lista");
+
+arvores.forEach(arvore => {
+
+    // marcador no mapa
+    L.marker([arvore.lat, arvore.lon])
+    .addTo(map)
+    .bindPopup(`<b>${arvore.nome}</b><br>${arvore.desc}`);
+
+    // card
+    let card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+        <h2>${arvore.nome}</h2>
+        <div class="detalhe">
+            <p><b>Científico:</b> ${arvore.cientifico}</p>
+            <p>${arvore.desc}</p>
+            <p>${arvore.lat}, ${arvore.lon}</p>
+            <a href="https://www.google.com/maps?q=${arvore.lat},${arvore.lon}" target="_blank">📍 Ver no mapa</a>
+        </div>
+    `;
+
+    card.onclick = () => {
+        let detalhe = card.querySelector(".detalhe");
+        detalhe.style.display = detalhe.style.display === "block" ? "none" : "block";
+    };
+
+    lista.appendChild(card);
+});
+
+// 🔍 FILTRO
+function filtrar() {
+    let input = document.getElementById("search").value.toLowerCase();
+    let cards = document.getElementsByClassName("card");
+
+    for (let i = 0; i < cards.length; i++) {
+        let texto = cards[i].innerText.toLowerCase();
+        cards[i].style.display = texto.includes(input) ? "" : "none";
+    }
+}
+
+</script>
+
+</body>
+</html>
